@@ -1,0 +1,65 @@
+#-------------------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---------------------#		
+#  8888888b.  8888888b.  d8b     d8888  888       888 d8b           d888   .d8888b.   # 
+#  888   Y88b 888   Y88b Y8P    d8P888  888   o   888 Y8P          d8888  d88P  Y88b  # 
+#  888    888 888    888       d8P 888  888  d8b  888                888  888    888  # 
+#  888   d88P 888   d88P 888  d8P  888  888 d888b 888 888 88888b.    888  888    888  # 
+#  8888888P"  8888888P"  888 d88   888  888d88888b888 888 888 "88b   888  888    888  # 
+#  888 T88b   888        888 8888888888 88888P Y88888 888 888  888   888  888    888  # 
+#  888  T88b  888        888       888  8888P   Y8888 888 888  888   888  Y88b  d88P  # 
+#  888   T88b 888        888       888  888P     Y888 888 888  888 8888888 "Y8888P"   # 
+#-------------------------------+-+-+-+-+-+-+-+-+-+-+-+-------------------------------# 
+#                               |b|y|D|e|m|o|n|W|a|r|e|                               #
+#-------------------------------+-+-+-+-+-+-+-+-+-+-+-+-------------------------------# 
+
+image: Ubuntu1804
+
+skip_non_tags: true
+
+install:
+  sh: |-
+      sudo apt-get update -qq
+      sudo -E apt-get install -y acpica-tools gcc-aarch64-linux-gnu python3-distutils uuid-dev
+      git submodule update --init --recursive
+
+before_build:
+  ps: |-
+      Start-FileDownload https://github.com/raspberrypi/firmware/raw/master/boot/fixup4.dat
+      Start-FileDownload https://github.com/raspberrypi/firmware/raw/master/boot/start4.elf
+      Start-FileDownload https://github.com/raspberrypi/firmware/raw/master/boot/bcm2711-rpi-4-b.dtb
+      Start-FileDownload https://github.com/raspberrypi/firmware/raw/master/boot/overlays/miniuart-bt.dtbo
+      Start-FileDownload https://github.com/raspberrypi/firmware/raw/master/boot/overlays/i2c-gpio.dtbo
+      Start-FileDownload https://github.com/raspberrypi/firmware/raw/master/boot/overlays/rpi-backlight.dtbo
+      Start-FileDownload https://github.com/D3vD3m0n/Game-HAT-MOD/raw/master/waveshare32b-overlay.dtb
+      Start-FileDownload https://github.com/D3vD3m0n/Game-HAT-MOD/raw/master/xinput-calibrator_0.7.5-1_armhf.deb
+      mkdir overlays
+      move miniuart-bt.dtbo overlays
+      move i2c-gpio.dtbo overlays
+      move rpi-backlight.dtbo overlays
+      move waveshare32b-overlay.dtb overlays/waveshare32b.dtb
+      move xinput-calibrator_0.7.5-1_armhf.deb overlays 
+
+build_script:
+  sh: ./build_firmware.sh
+
+after_build:
+  sh: |-
+      7z a RPi4_UEFI_Firmware_$APPVEYOR_REPO_TAG_NAME.zip $APPVEYOR_BUILD_FOLDER/Build/RPi4/RELEASE_GCC5/FV/RPI_EFI.fd $APPVEYOR_BUILD_FOLDER/bcm2711-rpi-4-b.dtb $APPVEYOR_BUILD_FOLDER/config.txt $APPVEYOR_BUILD_FOLDER/fixup4.dat $APPVEYOR_BUILD_FOLDER/start4.elf overlays/miniuart-bt.dtbo $APPVEYOR_BUILD_FOLDER/Readme.md
+      sha256sum $APPVEYOR_BUILD_FOLDER/Build/RPi4/DEBUG_GCC5/FV/RPI_EFI.fd $APPVEYOR_BUILD_FOLDER/Build/RPi4/RELEASE_GCC5/FV/RPI_EFI.fd RPi4_UEFI_Firmware_$APPVEYOR_REPO_TAG_NAME.zip
+
+artifacts:
+  - path: 'Build/RPi4/DEBUG_GCC5/FV/RPI_EFI.fd'
+    name: DEBUG RPi4 UEFI Firmware
+  - path: 'Build/RPi4/RELEASE_GCC5/FV/RPI_EFI.fd'
+    name: RELEASE RPi4 UEFI Firmware
+  - path: '*.zip'
+    name: RPi 4 UEFI Firmware
+
+deploy:
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  description: Raspberry Pi 4 UEFI Firmware $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
+  auth_token:
+    secure: w5YuQOim+G+U7FxxrL0BH6t0trCWKCs9DMZlF4xqF2XGC6SymzwaJrPWrKeeJHPK
+  artifact: /.*\.zip/
+  draft: false
+  prerelease: false
