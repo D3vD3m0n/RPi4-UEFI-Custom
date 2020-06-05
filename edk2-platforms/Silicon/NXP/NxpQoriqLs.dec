@@ -1,0 +1,41 @@
+#  @file.
+#
+#  Copyright 2017-2020 NXP
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+#
+
+[Defines]
+  DEC_SPECIFICATION              = 0x0001001A
+  PACKAGE_VERSION                = 0.1
+
+[Includes]
+  Include
+
+[LibraryClasses]
+  ##  @libraryclass  Provides Chassis specific functions to other modules
+  ChassisLib|Include/Library/ChassisLib.h
+
+  ##  @libraryclass  Provides services to read/write to I2c devices
+  I2cLib|Include/Library/I2cLib.h
+
+[Guids.common]
+  gNxpQoriqLsTokenSpaceGuid      = {0x98657342, 0x4aee, 0x4fc6, {0xbc, 0xb5, 0xff, 0x45, 0xb7, 0xa8, 0x71, 0xf2}}
+  gNxpNonDiscoverableI2cMasterGuid = { 0x5f2c099c, 0x54a3, 0x4dd4, {0x9e, 0xc5, 0xe9, 0x12, 0x8c, 0x36, 0x81, 0x6a}}
+
+[PcdsFeatureFlag]
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cErratumA009203|FALSE|BOOLEAN|0x00000315
+  gNxpQoriqLsTokenSpaceGuid.PcdDcfgBigEndian|FALSE|BOOLEAN|0x00000316
+  gNxpQoriqLsTokenSpaceGuid.PcdPciLutBigEndian|FALSE|BOOLEAN|0x00000317
+
+[PcdsFixedAtBuild.common]
+  # Pcds for PCI Express
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp1BaseAddr|0x0|UINT64|0x00000500
+  gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|0|UINT32|0x00000501
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x0|UINT32|0x00000502
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x0|UINT32|0x00000503
+
+[PcdsDynamic.common]
+  gNxpQoriqLsTokenSpaceGuid.PcdPciCfgShiftEnable|FALSE|BOOLEAN|0x00000600
+  gNxpQoriqLsTokenSpaceGuid.PcdPciLsGen4Ctrl|FALSE|BOOLEAN|0x00000601
