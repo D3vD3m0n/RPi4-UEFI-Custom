@@ -10,9 +10,10 @@
 #-----------------------------|b|y|D|e|m|o|n|W|a|r|e|-----------------------------#
 arm_64bit=1
 gpu_mem=512
-dtparam=i2c_arm=on
+dtparam=i2c_arm=on,spi=on
+#i2s=on,#i2c=on #it is possible to 
+#both enable an interface (spi u. i2c)
 enable_uart=1
-dtparam=spi=on
 uart_2ndstage=1
 enable_gic=1
 armstub=RPI_EFI.fd
